@@ -1,34 +1,34 @@
 <?hh // strict
 
-newtype BindingCallback = (function(?array) : mixed);
-newtype Binding = Pair<BindingCallback, bool>;
+newtype IoCBindingCallback = (function(?array<mixed, mixed>) : mixed);
+newtype IoCBinding = Pair<IoCBindingCallback, bool>;
 
 class IoC
 {
     /*
      * name => (callback, isSingleton)
      */
-    private static Map<string, Binding> $registry = Map{};
+    private static Map<string, IoCBinding> $registry = Map{};
 
     /*
      * Map with the instantiated singleton objects
      */
-    private static Map<string, mixed> $instances = Map{};
+    public static Map<string, mixed> $instances = Map{};
 
     /**
      * @param $name
      * @return string
      */
-    private static function normalizeName(string $name) : string
+    private static function normalizeName<T>(classname<T> $name) : string
     {
-        return strtolower($name);
+        return strtolower((string)$name);
     }
 
     /**
      * @param Pair $registryData
      * @return bool
      */
-    private static function isSingleton(Binding $registryData) : bool
+    private static function isSingleton(IoCBinding $registryData) : bool
     {
         return $registryData[1];
     }
@@ -37,7 +37,7 @@ class IoC
      * @param Pair $registryData
      * @return function
      */
-    private static function getCallback(Binding $registryData) : BindingCallback
+    private static function getCallback(IoCBinding $registryData) : IoCBindingCallback
     {
         return $registryData[0];
     }
@@ -50,7 +50,7 @@ class IoC
      * @param function $resolver
      * @param bool $singleton
      */
-    public static function bind(string $name, BindingCallback $resolver, bool $singleton = false) : void
+    public static function bind<T>(classname<T> $name, IoCBindingCallback $resolver, bool $singleton = false) : void
     {
         $name = self::normalizeName($name);
         self::$registry[$name] = Pair{$resolver, $singleton};
@@ -63,7 +63,7 @@ class IoC
      * @param string $name
      * @param function $resolver
      */
-    public static function singleton(string $name, BindingCallback $resolver) : void
+    public static function singleton<T>(classname<T> $name, IoCBindingCallback $resolver) : void
     {
         self::bind($name, $resolver, true);
     }
@@ -72,25 +72,25 @@ class IoC
      * Create an instance
      *
      *
-     * @param string $name
-     * @param mixed $params
-     * @param mixed $nameSuffix  Suffix for singleton instance keys
+     * @param classname $class
+     * @param array $params
+     * @param string $nameSuffix  Suffix for singleton instance keys
      *                           Example: (mysql-mysql://127.0.0.1/awesome_db) so we can have singleton instances for different MySql connections
      * @return object
      */
-    public static function make<T>(classname<T> $name, ?array $params = null, string $instanceSuffix = '') : ?T
+    public static function make<T>(classname<T> $class, ?array<mixed, mixed> $params = null, string $instanceSuffix = '') : ?T
     {
-        $name = self::normalizeName($name);
-        if (static::has($name)) {
-            $data = self::$registry[$name];
+        $key = self::normalizeName($class);
+        if (self::has($class)) {
+            $data = self::$registry[$key];
             if (self::isSingleton($data)) {
-                $name .= $instanceSuffix;
-                if (!self::hasInstance($name)) {
+                $key .= $instanceSuffix;
+                if (!self::hasInstance($class, $instanceSuffix)) {
                     $callback = self::getCallback($data);
-                    self::$instances[$name] = $callback($params);
+                    self::$instances[$key] = $callback($params);
                 }
 
-                return self::$instances[$name];
+                return self::$instances[$key];
             }
             else {
                 $callback = self::getCallback($data);
@@ -108,9 +108,10 @@ class IoC
      * @param string $name
      * @return boolean
      */
-    public static function has($name) : bool
+    public static function has<T>(classname<T> $name) : bool
     {
-        return !empty(self::$registry[$name]);
+        $name = self::normalizeName($name);
+        return !is_null(self::$registry->get($name));
     }
 
     /**
@@ -120,9 +121,11 @@ class IoC
      * @param string $name
      * @return boolean
      */
-    public static function hasInstance($name) : bool
+    public static function hasInstance<T>(classname<T> $name, string $instanceSuffix = '') : bool
     {
-        return !empty(self::$instances[$name]);
+        $name = self::normalizeName($name);
+        $name .= $instanceSuffix;
+        return !is_null(self::$instances->get($name));
     }
 
     /**
@@ -132,9 +135,12 @@ class IoC
      * @param string $name
      * @return boolean
      */
-    public static function flushInstance($name) : void
+    public static function flushInstance<T>(classname<T> $name, string $instanceSuffix = '') : void
     {
-        unset(self::$instances[$name]);
+        $name = self::normalizeName($name);
+        $name .= $instanceSuffix;
+
+        self::$instances->remove($name);
     }
 
     /**
@@ -144,8 +150,8 @@ class IoC
      * @param string $name
      * @return boolean
      */
-    public static function flushBinding($name) : void
+    public static function flushBinding<T>(classname<T> $name) : void
     {
-        unset(self::$registry[$name]);
+        self::$registry->remove($name);
     }
 }
