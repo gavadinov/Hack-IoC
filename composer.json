@@ -1,5 +1,5 @@
 {
-    "name": "hhvm/container",
+    "name": "bdzzz/container",
     "description": "Inversion of control container",
     "keywords": ["ioc", "container", "hack", "hhvm"],
     "homepage": "https://github.com/bdzzz/Hack-IoC",
