@@ -2,6 +2,8 @@
 
 require_once 'IoC.hh';
 
+use Container\IoC;
+
 class DummyBindClass {}
 class DummySingletonClass {}
 

@@ -1,0 +1,20 @@
+{
+    "name": "hhvm/container",
+    "description": "Inversion of control container",
+    "keywords": ["ioc", "container", "hack", "hhvm"],
+    "homepage": "https://github.com/bdzzz/Hack-IoC",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Lyubomir Gavadinov",
+            "email": "gavadinov@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "psr-0": {
+            "Container": ""
+        }
+    }
+}

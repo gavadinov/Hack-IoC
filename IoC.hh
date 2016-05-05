@@ -1,5 +1,7 @@
 <?hh // strict
 
+namespace Container;
+
 newtype IoCBindingCallback = (function(?array<mixed, mixed>) : mixed);
 newtype IoCBinding = Pair<IoCBindingCallback, bool>;
 
