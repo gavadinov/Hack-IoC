@@ -92,11 +92,19 @@ class IoC
                     self::$instances[$key] = $callback($params);
                 }
 
-                return self::$instances[$key];
+                $instance = self::$instances[$key];
+
+                if ($instance instanceof $class) {
+                    return $instance;
+                }
             }
             else {
                 $callback = self::getCallback($data);
-                return $callback($params);
+                $instance = $callback($params);
+
+                if ($instance instanceof $class) {
+                    return $instance;
+                }
             }
         }
 
