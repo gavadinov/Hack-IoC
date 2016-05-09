@@ -13,8 +13,11 @@
     ],
     "require": {},
     "autoload": {
-        "psr-0": {
-            "Container": ""
-        }
+        "classmap": [
+            "/"
+        ],
+        "files": [
+            "IoC.hh"
+        ]
     }
 }
