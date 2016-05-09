@@ -49,7 +49,7 @@ class IoC
      *
      *
      * @param string $name
-     * @param function $resolver
+     * @param IoCBindingCallback $resolver
      * @param bool $singleton
      */
     public static function bind<T>(classname<T> $name, IoCBindingCallback $resolver, bool $singleton = false) : void
@@ -63,7 +63,7 @@ class IoC
      *
      *
      * @param string $name
-     * @param function $resolver
+     * @param IoCBindingCallback $resolver
      */
     public static function singleton<T>(classname<T> $name, IoCBindingCallback $resolver) : void
     {
