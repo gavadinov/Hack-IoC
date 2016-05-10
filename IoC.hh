@@ -15,7 +15,7 @@ class IoC
     /*
      * Map with the instantiated singleton objects
      */
-    public static Map<string, mixed> $instances = Map{};
+    private static Map<string, mixed> $instances = Map{};
 
     /**
      * @param $name
